@@ -48,7 +48,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  num _counter = 0;
+  final _myController = TextEditingController();
 
   void _incrementCounter() {
     setState(() {
@@ -57,7 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      _counter++;
+      num enteredValue = num.tryParse(_myController.text) ?? 1;
+      _counter += enteredValue;
     });
   }
 
@@ -102,6 +104,20 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            Card(
+              elevation: .9,
+              color: Colors.yellow,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  controller: _myController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'Count By 1',
+                  ),
+                  ),
+              ),
+            )
           ],
         ),
       ),
