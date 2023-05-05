@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 void main() {
   runApp(const MyApp());
@@ -48,8 +50,44 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  num _counter = 0;
+
   final _myController = TextEditingController();
+  bool hasLoaded = false;
+
+  // Get local path
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  // determine what/where local file shall be called
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/counter.txt');
+  }
+
+  Future<File> writeCounter(num counter) async {
+    final file = await _localFile;
+
+    // Write the file
+    return file.writeAsString('$counter');
+  }
+
+  Future<num> readCounter() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file
+      final contents = await file.readAsString();
+
+      return num.parse(contents);
+    } catch (e) {
+      // If encountering an error, return 0
+      return 0;
+    }
+  }
+
+  num _counter = 0;
 
   void _incrementCounter() {
     setState(() {
@@ -60,11 +98,22 @@ class _MyHomePageState extends State<MyHomePage> {
       // called again, and so nothing would appear to happen.
       num enteredValue = num.tryParse(_myController.text) ?? 1;
       _counter += enteredValue;
+      writeCounter(_counter);
+    
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if(!hasLoaded){
+      readCounter()
+        .then((value) {
+          setState(() {
+            _counter = value;
+            hasLoaded = true;
+          });
+        });
+    };
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
